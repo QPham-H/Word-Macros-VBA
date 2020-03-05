@@ -1,0 +1,350 @@
+Public Sub ReplaceLinesOfText()
+''' PURPOSE: Replace or erase any line (mainly for headers and footers)
+Const wdReplaceAll = 2
+'ActiveDocument.PageSetup.DifferentFirstPageHeaderFooter = False
+    Dim myStoryRange As Range
+    
+        For Each myStoryRange In ActiveDocument.StoryRanges
+            ''' use Chr(13) for new line
+            ''' use Chr(150) or Chr (151) for en and em dashes
+            Dim oldLine_1 As String
+            Dim newLine_1 As String
+            Dim oldLine_2 As String
+            Dim newLine_2 As String
+            Dim oldLine_3 As String
+            Dim newLine_3 As String
+            
+            
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            ''''''''''''''''''''''''''''''''''' EDIT CODE BELOW '''''''''''''''''''''''''''''''''''
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            
+            
+            
+            ''''''' Please type the old line you want to change exactly. (Case sensitive). ''''''''
+            oldLine_1 = "00/00/00"
+            
+            ''''''' Please type the new line exactly. (Use a space to delete the old line) ''''''''
+            newLine_1 = "02/20/20"
+            
+            
+            
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            
+            
+            
+            ''' Do you want to change a SECOND line? (If yes, type "vbYes". If no, type "vbNo") '''
+            changeASecondLine = vbNo
+            
+            ''''''' Please type the old line you want to change exactly. (Case sensitive). ''''''''
+            oldLine_2 = "Issued for CONFORMED SET"
+    
+            ''''''' Please type the new line exactly. (Use a space to delete the old line) ''''''''
+            newLine_2 = "Issued for RECORD DOCUMENTS"
+            
+            
+            
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            
+            
+            
+            ''' Do you want to change a THIRD line? (If yes, type "vbYes". If no, type "vbNo") ''''
+            changeAThirdLine = vbNo
+            
+            ''''''' Please type the old line you want to change exactly. (Case sensitive). ''''''''
+            oldLine_3 = "190234"
+            
+            ''''''' Please type the new line exactly. (Use a space to delete the old line) ''''''''
+            newLine_3 = "2020-49021-SCI"
+                    
+                    
+            
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            ''''''''''''''''''''''''''''''''''' EDIT CODE ABOVE '''''''''''''''''''''''''''''''''''
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+            
+            
+            With myStoryRange.Find
+                .Text = oldLine_1
+                .Replacement.Text = newLine_1
+                .Wrap = wdFindContinue
+                .Execute Replace:=wdReplaceAll
+                
+                ''' For Headers that are sometimes blue
+                If .Found = True Then
+                    myStoryRange.Font.ColorIndex = wdBlack
+                End If
+            End With
+            
+            Do While Not (myStoryRange.NextStoryRange Is Nothing)
+            Set myStoryRange = myStoryRange.NextStoryRange
+            With myStoryRange.Find
+                .Text = oldLine_1
+                .Replacement.Text = newLine_1
+                .Wrap = wdFindContinue
+                .Execute Replace:=wdReplaceAll
+            End With
+            Loop
+            
+            If changeASecondLine = vbYes Then
+                With myStoryRange.Find
+                    .Text = oldLine_2
+                    .Replacement.Text = newLine_2
+                    .Wrap = wdFindContinue
+                    .Execute Replace:=wdReplaceAll
+                End With
+                
+                Do While Not (myStoryRange.NextStoryRange Is Nothing)
+                Set myStoryRange = myStoryRange.NextStoryRange
+                With myStoryRange.Find
+                    .Text = oldLine_2
+                    .Replacement.Text = newLine_2
+                    .Wrap = wdFindContinue
+                    .Execute Replace:=wdReplaceAll
+                End With
+                Loop
+            End If
+            
+            
+            If changeAThirdLine = vbYes Then
+                With myStoryRange.Find
+                    .Text = oldLine_3
+                    .Replacement.Text = newLine_3
+                    .Wrap = wdFindContinue
+                    .Execute Replace:=wdReplaceAll
+                End With
+                
+                Do While Not (myStoryRange.NextStoryRange Is Nothing)
+                Set myStoryRange = myStoryRange.NextStoryRange
+                With myStoryRange.Find
+                    .Text = oldLine_3
+                    .Replacement.Text = newLine_3
+                    .Wrap = wdFindContinue
+                    .Execute Replace:=wdReplaceAll
+                End With
+                Loop
+            End If
+        
+
+        Next myStoryRange
+        
+    ActiveDocument.Save
+'    ActiveDocument.Close
+End Sub
+Public Sub CreatePDF()
+''' PURPOSE: Create a PDF of the word document with the same name in the same folder
+    Dim CurrentFolder As String
+    Dim FileName As String
+    Dim myPath As String
+
+    'Store Information About Word File
+    myPath = ActiveDocument.FullName
+    CurrentFolder = ActiveDocument.Path & "\"
+    FileName = Mid(myPath, InStrRev(myPath, "\") + 1, _
+    InStrRev(myPath, ".") - InStrRev(myPath, "\") - 1)
+
+
+    ActiveDocument.ExportAsFixedFormat _
+    OutputFileName:=CurrentFolder & FileName & ".pdf", _
+    ExportFormat:=wdExportFormatPDF
+      
+    ActiveDocument.Save
+'    ActiveDocument.Close
+ 
+End Sub
+
+Sub InsertCompletelyNewHeaders()
+''' PURPOSE: Replace header completely with two lines of text to the header
+ActiveDocument.PageSetup.DifferentFirstPageHeaderFooter = False
+    Dim addLine_1 As String
+    Dim addLine_2 As String
+    Dim HdrText As String
+    Dim GrabRange As Range
+    Dim HdrRange As Range
+
+    'Set Variable equal to Header Range
+    Set HdrRange = ActiveDocument.Sections.Item(1).Headers(wdHeaderFooterPrimary).Range
+    
+    'Grab First Sentence in Header
+    Set GrabRange = HdrRange.Words(1) 'Get First Word
+    GrabRange.Expand (wdSentence)   'Expand To Entire ****
+    ' GrabRange.Copy  'Bold Entire Sentence
+    
+    
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ''''''''''''''''''''''''''''''''''' EDIT CODE BELOW '''''''''''''''''''''''''''''''''''
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    
+
+
+    ''''''' Please type the new line exactly. (Use a space to delete the old line) ''''''''
+    addLine_1 = "CPS Control: 05_03/25/2019"
+    
+    
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    
+    
+    
+    ''' Do you want to add a SECOND line? (If yes, type "vbYes". If no, type "vbNo") '''
+    addASecondLine = vbYes
+
+    ''''''' Please type the new line exactly. (Use a space to delete the old line) ''''''''
+    addLine_2 = "AOR Project Issue: A_02/18/2020"
+    
+    
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    
+    
+    
+    ''' Do you want to add a SECOND line? (If yes, type "vbYes". If no, type "vbNo") '''
+    addAThirdLine = vbNo
+
+    ''''''' Please type the new line exactly. (Use a space to delete the old line) ''''''''
+    addLine_3 = "Holabird & Root, LLC Project No. 15982"
+    
+    
+    
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    ''''''''''''''''''''''''''''''''''' EDIT CODE ABOVE '''''''''''''''''''''''''''''''''''
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+    
+    
+    'Two Lines of Text to add to Header
+    If addAThirdLine = vbYes Then
+        HdrText = GrabRange.Text & addLine_1 & vbNewLine & addLine_2 & vbNewLine & addLine_3
+    Else
+        If addASecondLine = vbYes Then
+            HdrText = GrabRange.Text & addLine_1 & vbNewLine & addLine_2
+        Else
+            HdrText = GrabRange.Text & addLine_1
+        End If
+    End If
+    
+    'Add Text To Word Header
+    ActiveDocument.Sections.Item(1).Headers(wdHeaderFooterPrimary).Range.Text = HdrText
+      
+    ActiveDocument.Save
+    
+End Sub
+
+Public Sub RunMacroOnAllFilesInFolder()
+''' PURPOSE: Runs any choice(s) of macros on all the Word documents within a given folder
+    Dim flpath As String, fl As String
+    flpath = InputBox("Please enter the folder path for the files you want to run the macros on.")
+    
+    
+    If flpath = "" Then
+        MsgBox "Invalid File Path"
+        Exit Sub
+    End If
+    
+    If Right(flpath, 1) <> Application.PathSeparator Then
+        flpath = flpath & Application.PathSeparator
+    End If
+    
+    
+    Dim headerResponse As String
+    headerResponse = vbNo
+    headerResponse = MsgBox("Do you want to replace text?", vbYesNo)
+    
+    Dim blueResponse As String
+    blueResponse = vbNo
+    blueResponse = MsgBox("Do you want to remove blue text?", vbYesNo)
+    
+    Dim newHeaderResponse As String
+    newHeaderResponse = vbNo
+    newHeaderResponse = MsgBox("Do you want whole new headers?", vbYesNo)
+     
+    Dim pdfResponse As String
+    pdfResponse = vbNo
+    pdfResponse = MsgBox("Do you want to make a PDF?", vbYesNo)
+    
+    ''' For .docx files '''
+    flx = Dir(flpath & "*.docx")
+    
+    If (headerResponse = vbNo) And (blueResponse = vbNo) And (newHeaderResponse = vbNo) And (pdfResponse = vbNo) Then
+        Exit Sub
+    End If
+
+            
+    Application.ScreenUpdating = False
+    Do Until flx = ""
+        Dim docx As Document
+        Set docx = Documents.Open(flpath & flx)
+                  
+        If headerResponse = vbYes Then
+            Call ReplaceLinesOfText
+        End If
+        
+        If blueResponse = vbYes Then
+            Call DeleteBlueText
+        End If
+
+        If newHeaderResponse = vbYes Then
+            Call InsertCompletelyNewHeaders
+        End If
+
+        If pdfResponse = vbYes Then
+            Call CreatePDF
+        End If
+        
+        docx.Close
+        flx = Dir()
+    Loop
+    
+    ''' Repeated for .doc files '''
+    fl = Dir(flpath & "*.doc")
+    
+    Application.ScreenUpdating = False
+    Do Until fl = ""
+        Dim doc As Document
+        Set doc = Documents.Open(flpath & fl)
+        
+        If headerResponse = vbYes Then
+            Call ReplaceLinesOfText
+        End If
+        
+        If blueResponse = vbYes Then
+            Call DeleteBlueText
+        End If
+        
+        If newHeaderResponse = vbYes Then
+            Call InsertCompletelyNewHeaders
+        End If
+        
+        If pdfResponse = vbYes Then
+            Call CreatePDF
+        End If
+        
+        doc.Close
+        fl = Dir()
+    Loop
+    
+End Sub
+Public Sub DeleteBlueText()
+    
+    Dim myStoryRange As Range
+    
+        For Each myStoryRange In ActiveDocument.StoryRanges
+            With myStoryRange.Find
+                .Font.ColorIndex = wdBlue
+                .Replacement.Text = ""
+                .Wrap = wdFindContinue
+                .Execute Replace:=wdReplaceAll
+            End With
+        Next myStoryRange
+    ActiveDocument.Save
+'    ActiveDocument.Close
+End Sub
